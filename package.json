@@ -1,0 +1,21 @@
+{
+  "name": "filingcabinet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@openlab.ncl.ac.uk:17150/connected-academy/filingcabinet.git"
+  },
+  "dependencies": {
+    "orientjs": "2.2.4",
+    "ioredis": "2.5.0",
+    "winston": "2.3.1",
+    "winston-loggly-bulk": "1.4.1"
+  },
+  "author": "Tom Bartindale",
+  "license": "MIT"
+}

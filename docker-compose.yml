@@ -1,0 +1,17 @@
+version: '2'
+networks:
+  dev_ca-back-network:
+    external: true
+    
+services:
+  filingcabinet:
+    build: .
+    volumes:
+      - ./app:/usr/src/app/app
+      - ./test:/usr/src/app/test:ro
+    command: nodemon --debug=0.0.0.0:5959 -x "node --harmony-async-await" -L app.js
+    ports:
+      - "5859:5859"
+    networks: 
+      - dev_ca-back-network
+    env_file: .env
