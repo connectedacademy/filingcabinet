@@ -4,6 +4,25 @@ let loggly = require('winston-loggly-bulk');
 let Redis = require("ioredis");
 let Message = null;
 
+let createField = async function(cls, name, type)
+{
+    try
+    {
+        await cls.property.create([
+            {
+                name: 'text',
+                type: 'String',
+            }
+        ]);
+        logger.info("Adding " + name + " to Message");
+    }
+    catch (e)
+    {
+        // console.log(e);
+        //properties already exist
+    }
+}
+
 module.exports = async function()
 {
     try
@@ -70,26 +89,11 @@ module.exports = async function()
 
         Message = await db.class.get('Message');
         
-        try
-        {
-            await Message.property.create([
-                {
-                    name: 'text',
-                    type: 'String',
-                },
-                {
-                    name: 'service',
-                    type: 'String'
-                }
-            ]);
-            logger.info("Adding Properties to Message");
-            
-        }
-        catch (e)
-        {
-            //properties already exist
-        }
-
+        await createField(Message,'text','String');
+        await createField(Message,'service','String');
+        await createField(Message,'modifiedAt','Datetime');
+        await createField(Message,'createdAt','Datetime');
+        
         // logic
         redis.on('message', async function (channel, message) {
             logger.verbose('Writing Message from PUBSUB', message);
