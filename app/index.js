@@ -10,8 +10,8 @@ let createField = async function(cls, name, type)
     {
         await cls.property.create([
             {
-                name: 'text',
-                type: 'String',
+                name: name,
+                type: type,
             }
         ]);
         logger.info("Adding " + name + " to Message");
@@ -78,28 +78,43 @@ module.exports = async function()
         
         try
         {
-            await db.class.create('Message', 'V');   
-            logger.info("Created Message Class");
-             
+            await db.class.create('message','V');
+            logger.info("Created Message Class");  
         }
         catch (e)
         {
+            logger.verbose('Cant create class',e);
             //already exists
         }
 
-        Message = await db.class.get('Message');
-        
-        await createField(Message,'text','String');
-        await createField(Message,'service','String');
-        await createField(Message,'modifiedAt','Datetime');
-        await createField(Message,'createdAt','Datetime');
+        try
+        {
+            Message = await db.class.get('message');
+        }
+        catch (e)
+        {
+            logger.verbose('Cant get class',e);
+        }
         
         // logic
         redis.on('message', async function (channel, message) {
-            logger.verbose('Writing Message from PUBSUB', message);
-
+            // console.log(message);
+            let msg = JSON.parse(message);
+            logger.verbose('Writing Message from PUBSUB', msg.id);
             try {
-            await Message.create(message);
+                db.update('message')
+                .set(msg)
+                .upsert()
+                .where({
+                    id: msg.id
+                })
+                .return('AFTER')
+                .one()
+                .then(function(result){
+                    logger.info("Message Written " + result.id);
+                }).catch(function(err){
+                    logger.error(err);
+                });
             }
             catch (e){
                 logger.error(e);
