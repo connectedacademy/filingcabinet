@@ -7,3 +7,8 @@ Designed to be a single instance in a cluster which bridge the gap between multi
 ## Deployment
 
 `docker-compose up -d`
+
+## Operation
+
+- Subscribes to Redis queue
+- For each incoming message, writes to OrientDB

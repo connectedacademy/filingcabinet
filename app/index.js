@@ -83,7 +83,7 @@ module.exports = async function()
         }
         catch (e)
         {
-            logger.verbose('Cant create class',e);
+            // logger.verbose('Cant create class',e);
             //already exists
         }
 
@@ -93,7 +93,7 @@ module.exports = async function()
         }
         catch (e)
         {
-            logger.verbose('Cant get class',e);
+            // logger.verbose('Cant get class',e);
         }
         
         // logic
@@ -111,7 +111,7 @@ module.exports = async function()
                 .return('AFTER')
                 .one()
                 .then(function(result){
-                    logger.info("Message Written " + result.id);
+                    logger.verbose("Message Written " + result.id);
                 }).catch(function(err){
                     logger.error(err);
                 });
