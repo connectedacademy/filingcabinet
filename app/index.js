@@ -102,6 +102,9 @@ module.exports = async function()
             let msg = JSON.parse(message);
             logger.verbose('Writing Message from PUBSUB', msg.id);
             try {
+                msg.createdAt = Date.parse(msg.createdAt);
+                msg.updatedAt = Date.parse(msg.updatedAt);
+                // console.log(msg);
                 db.update('message')
                 .set(msg)
                 .upsert()
