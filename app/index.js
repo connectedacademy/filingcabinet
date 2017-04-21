@@ -3,6 +3,7 @@ let logger = new winston.Logger();
 let loggly = require('winston-loggly-bulk');
 let Redis = require("ioredis");
 let Message = null;
+let ContentCache = require('./contentcache.js');
 
 let createField = async function(cls, name, type)
 {
@@ -45,7 +46,7 @@ module.exports = async function()
         });
 
 
-        logger.info('Filing Cabinet Started'); 
+        logger.info('Filing Cabinet Started');
 
         // redis connection
         let redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
@@ -96,6 +97,10 @@ module.exports = async function()
             // logger.verbose('Cant get class',e);
         }
         
+
+        logger.info("Cache Engine Started");
+        let Cache = new ContentCache(db, logger);
+
         // logic
         redis.on('message', async function (channel, message) {
             // console.log(message);
@@ -109,12 +114,21 @@ module.exports = async function()
                 .set(msg)
                 .upsert()
                 .where({
-                    id: msg.id
+                    message_id: msg.message_id
                 })
                 .return('AFTER')
                 .one()
                 .then(function(result){
                     logger.verbose("Message Written " + result.id);
+                    try
+                    {
+                        logger.verbose('Processing Message for Cache',message.id);
+                        Cache.HandleMessage(message);
+                    }
+                    catch (e)
+                    {
+                        logger.error(e);
+                    }
                 }).catch(function(err){
                     logger.error(err);
                 });
