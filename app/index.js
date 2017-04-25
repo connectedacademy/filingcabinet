@@ -99,7 +99,8 @@ module.exports = async function()
         
 
         logger.info("Cache Engine Started");
-        let Cache = new ContentCache(db, logger);
+        let Cache = await new ContentCache(db, logger);
+        await Cache.init();
 
         // logic
         redis.on('message', async function (channel, message) {
@@ -119,11 +120,11 @@ module.exports = async function()
                 .return('AFTER')
                 .one()
                 .then(function(result){
-                    logger.verbose("Message Written " + result.id);
+                    logger.verbose("Message Written " + result['@rid']);
                     try
                     {
                         logger.verbose('Processing Message for Cache',message.id);
-                        Cache.HandleMessage(message);
+                        Cache.HandleMessage(msg);
                     }
                     catch (e)
                     {

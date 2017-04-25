@@ -14,7 +14,8 @@
     "orientjs": "2.2.4",
     "ioredis": "2.5.0",
     "winston": "2.3.1",
-    "winston-loggly-bulk": "1.4.1"
+    "winston-loggly-bulk": "1.4.1",
+    "request-promise-native": "1.0.3"
   },
   "author": "Tom Bartindale",
   "license": "MIT"
