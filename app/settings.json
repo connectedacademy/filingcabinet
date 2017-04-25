@@ -9,6 +9,10 @@
         {
             "name":"class",
             "regex":"https:\/\/.*\\.connectedacademy\\.io\/(.*)\/submission"
+        },
+        {
+            "name":"segment",
+            "regex":"https:\/\/.*\\.connectedacademy\\.io\/.*\/(.*)\/submission"
         }
     ],
     "capture":"(<script.*data-4c-meta[\\S\\s]*<\/script>)[\\S\\s]*(<img.*data-4c.*>)"
