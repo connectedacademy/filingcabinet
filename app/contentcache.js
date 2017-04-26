@@ -20,11 +20,11 @@ class ContentCache
         try
         {
             await this.database.class.create('submission');
-            this.logger.info("Created Message Class");
+            this.logger.info("Created Submission Class");
         }
         catch (e)
         {
-            this.logger.verbose('Cant create class',e);
+            // this.logger.verbose('Cant create class',e);
             //already exists
         }
 

@@ -94,7 +94,7 @@ module.exports = async function()
         }
         catch (e)
         {
-            // logger.verbose('Cant get class',e);
+            logger.verbose('Cant get class',e);
         }
         
 
@@ -106,10 +106,9 @@ module.exports = async function()
         redis.on('message', async function (channel, message) {
             // console.log(message);
             let msg = JSON.parse(message);
-            logger.verbose('Writing Message from PUBSUB', msg.id);
+            logger.verbose('Writing Message from PUBSUB', msg.message_id);
             try {
                 msg.createdAt = Date.parse(msg.createdAt);
-                msg.updatedAt = Date.parse(msg.updatedAt);
                 // console.log(msg);
                 db.update('message')
                 .set(msg)
