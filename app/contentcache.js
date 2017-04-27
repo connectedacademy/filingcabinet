@@ -41,7 +41,7 @@ class ContentCache
         this.logger.verbose('Getting url',url);        
         // get the target content
         let content = await request(url);
-        console.log(content);
+        // console.log(content);
         // parse for the capture object
         let regex = new RegExp(settings.capture.replace("\\\\","\\"));
         // console.log(regex);
@@ -74,7 +74,7 @@ class ContentCache
     async HandleMessage(message)
     {
         //if message matches profile, then 
-        this.logger.verbose('Checking message against cache profile',message.id);
+        this.logger.verbose('Checking message against cache profile',message['@rid']+'');
         //if message matches the profile for the cache, then retrive the url:
 
         //if it has the right hashtag:
@@ -104,7 +104,7 @@ class ContentCache
                         let user = await this.database.select()
                             .from('user')
                             .where({
-                                account_number: message.user.id,
+                                account_number: message.user_from.id_str,
                                 service: message.service
                             }).one();
                         // if its a known user, then cache it
@@ -134,11 +134,11 @@ class ContentCache
                             }
                             catch (e)
                             {
-                                this.logger.error("No captured content", e);
+                                this.logger.verbose("No captured content");
                             }
 
                             //still save it as a submissions:
-                            newsubmission.user = user;
+                            newsubmission.user = user['@rid'];
                             if (cacheinfo)
                             {
                                 newsubmission.url = cacheinfo.url;
@@ -148,7 +148,14 @@ class ContentCache
                             newsubmission.cached = iscached;
                             newsubmission.original = url.expanded_url;
                             newsubmission.cachedat = new Date();
-                            await this.Submission.create(newsubmission);
+                            try
+                            {
+                                await this.Submission.create(newsubmission);
+                            }
+                            catch(E)
+                            {
+                                this.logger.error('Failed submission creation',newsubmission);
+                            }
                         }
                         else
                         {

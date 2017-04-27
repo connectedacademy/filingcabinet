@@ -37,14 +37,15 @@ class RelationshipBuilder {
 
             if (tokenc) {
                 try {
-                    // let res = await Author.query("CREATE EDGE tokenin FROM " + record.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
-                    // this.logger.verbose("Edge created", res);
 
                     var res = await this.database.create('EDGE', 'tokenin').from(tokenc['@rid']).to(message['@rid']).set({
                         createdAt: new Date()
                     }).one();
+
+
                     // let res = await Author.query("CREATE EDGE author FROM " + user.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
                     this.logger.verbose("Created Token Relationship", tokenc.name, tokenc.type, message['@rid']+'', tokenc['@rid']+'');
+                    return true;
                 }
                 catch (e) {
                     this.logger.error(e);
@@ -75,6 +76,7 @@ class RelationshipBuilder {
                     }).one();
                     // let res = await Author.query("CREATE EDGE author FROM " + user.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
                     this.logger.verbose("Remessage (retweet) Linked", message['@rid']+'', msg['@rid']+'');
+                    return true;
                 }
                 catch (e) {
                     this.logger.error(e);
@@ -100,6 +102,7 @@ class RelationshipBuilder {
                         createdAt: new Date()
                     }).one();
                     this.logger.verbose("Reply Linked ", message['@rid']+'', msg['@rid']+'');
+                    return true;
                 }
                 catch (e) {
                     this.logger.error(e);
@@ -147,6 +150,7 @@ class RelationshipBuilder {
                         createdAt: new Date()
                     }).one();
                     this.logger.verbose("Author Linked ", user['@rid']+'', message['@rid']+'');
+                    return true;
                 }
                 catch (e) {
                     this.logger.error(e);
@@ -175,21 +179,27 @@ class RelationshipBuilder {
         await this.buildReplyLink(message);
 
         //build relationship with rule:
+        let processedtokens = [];
         for (let token of this.tokens) {
             // for the body of the message
-            await this.linkToken(token, message, message.text);
+            if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, message.text))
+                processedtokens.push(JSON.stringify(token));
 
             if (message.entities) {
                 //Twitter URLs
                 if (message.entities.urls) {
                     for (let entity of message.entities.urls) {
-                        await this.linkToken(token, message, entity.expanded_url);
+                        if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, entity.expanded_url))
+                        {
+                            processedtokens.push(JSON.stringify(token));
+                        }
                     }
                 }
 
                 if (message.entities.hashtags) {
                     for (let entity of message.entities.urls) {
-                        await this.linkToken(token, message, '#' + entity.text);
+                        if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, '#' + entity.text))
+                            processedtokens.push(JSON.stringify(token));                            
                     }
                 }
             }

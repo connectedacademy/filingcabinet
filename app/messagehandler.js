@@ -41,7 +41,7 @@ class Handler
                 try
                 {
                     this.logger.verbose('Processing Message for Cache',msg.message_id);
-                    this.Cache.HandleMessage(msg);
+                    this.Cache.HandleMessage(result);
                 }
                 catch (e)
                 {

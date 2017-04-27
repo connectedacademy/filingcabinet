@@ -44,7 +44,7 @@ module.exports = async function()
             json: true,
             handleExceptions: true,
             humanReadableUnhandledException: true
-        });        
+        });
 
         logger.info('Filing Cabinet Started');
 
