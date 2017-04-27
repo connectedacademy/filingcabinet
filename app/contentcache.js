@@ -1,10 +1,8 @@
-let settings = require('./settings.json');
+let settings = require('./settings.json').cache;
 let _ = require('lodash');
 let request = require('request-promise-native');
 
 //S3 storage
-
-
 
 class ContentCache
 {
@@ -76,7 +74,7 @@ class ContentCache
     async HandleMessage(message)
     {
         //if message matches profile, then 
-        this.logger.verbose('Checking message against profile',message.id);
+        this.logger.verbose('Checking message against cache profile',message.id);
         //if message matches the profile for the cache, then retrive the url:
 
         //if it has the right hashtag:

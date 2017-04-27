@@ -1,3 +1,5 @@
+let rb = require('./relationships');
+
 class Handler
 {
     constructor(logger, database, cache)
@@ -6,6 +8,12 @@ class Handler
         this.logger = logger;
         this.db = database;
         this.Cache = cache;
+        this.RelationshipBuilder = new rb(logger, database);
+    }
+
+    async init()
+    {
+        await this.RelationshipBuilder.init();
     }
 
     work(payload, callback)
@@ -25,8 +33,11 @@ class Handler
             })
             .return('AFTER')
             .one()
-            .then((result)=>{
+            .then(async (result)=>{
                 this.logger.verbose("Message Written " + result['@rid']);
+                //build graph
+                await this.RelationshipBuilder.processMessage(result);
+                // send to cache:
                 try
                 {
                     this.logger.verbose('Processing Message for Cache',msg.message_id);
@@ -49,23 +60,4 @@ class Handler
     }
 }
 
-
-
 module.exports = Handler;
-
-
-// function EmitKeysHandler()
-//     {
-//         this.type = 'emitkeys';
-//     }
-
-//     EmitKeysHandler.prototype.work = function(payload, callback)
-//     {
-//         var keys = Object.keys(payload);
-//         for (var i = 0; i < keys.length; i++)
-//             console.log(keys[i]);
-//         callback('success');
-//     }
-
-//     var handler = new EmitKeysHandler();
-//     return handler;

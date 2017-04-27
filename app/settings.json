@@ -1,19 +1,48 @@
 {
-    "validate": "https:\/\/.*\\.connectedacademy\\.io\/.*\/submission",
-    "tokens": 
-    [
-        {
-            "name":"course",
-            "regex":"https:\/\/(.*\\.connectedacademy\\.io)\/submission\/.*"
-        },
-        {
-            "name":"class",
-            "regex":"https:\/\/.*\\.connectedacademy\\.io\/submission\/(.*)\/"
-        },
-        {
-            "name":"segment",
-            "regex":"https:\/\/.*\\.connectedacademy\\.io\/submission\/.*\/(.*)"
-        }
-    ],
-    "capture":"(<script.*data-4c-meta[\\S\\s]*<\/script>)[\\S\\s]*(<img.*data-4c.*>)"
+    "relationships": {
+        "tokens": [
+            {
+                "name": "course_hashtag",
+                "regex": "(#ca2017)"
+            },
+            {
+                "name": "course",
+                "regex": "https:\/\/(.*)\\.connectedacademy\\.io\\.*"
+            },
+            {
+                "name": "class",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/(.*)\/.*"
+            },
+            {
+                "name": "segment",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/.*\/(.*)"
+            },
+            {
+                "name": "like",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/content\/(.*)"
+            },
+            {
+                "name": "hub",
+                "regex": "#ca-(.*)"
+            }
+        ]
+    },
+    "cache": {
+        "validate": "https:\/\/.*\\.connectedacademy\\.io\/submission\/.*",
+        "tokens": [
+            {
+                "name": "course",
+                "regex": "https:\/\/(.*\\.connectedacademy\\.io)\/submission\/.*"
+            },
+            {
+                "name": "class",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/submission\/(.*)\/"
+            },
+            {
+                "name": "segment",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/submission\/.*\/(.*)"
+            }
+        ],
+        "capture": "(<script.*data-4c-meta[\\S\\s]*<\/script>)[\\S\\s]*(<img.*data-4c.*>)"
+    }
 }

@@ -44,16 +44,9 @@ module.exports = async function()
             json: true,
             handleExceptions: true,
             humanReadableUnhandledException: true
-        });
-
-
-        
+        });        
 
         logger.info('Filing Cabinet Started');
-
-
-
-        
 
         // orientdb connection
         let OrientDB = require('orientjs');
@@ -93,6 +86,8 @@ module.exports = async function()
         await Cache.init();
 
         let messagehandler = require('./messagehandler');
+        let MessageHandler = new messagehandler(logger, db, Cache)
+        await MessageHandler.init();
         var options =
         {
             id: 'filingcabinet',
@@ -100,7 +95,7 @@ module.exports = async function()
             port: 11300,
             handlers:
             {
-                message: new messagehandler(logger, db, Cache)
+                message: MessageHandler
             },
             ignoreDefault: true
         }
