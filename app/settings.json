@@ -11,15 +11,19 @@
             },
             {
                 "name": "class",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/(.*)\/.*"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/(.*)\/.*\/.*$"
+            },
+            {
+                "name": "content",
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/.*\/(.*)\/.*$"
             },
             {
                 "name": "segment",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/.*\/(.*)"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/.*\/.*\/(.*)$"
             },
             {
                 "name": "like",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/content\/(.*)"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/(.*\/\\D*)$"
             },
             {
                 "name": "hub",
