@@ -88,6 +88,15 @@ module.exports = async function()
         let messagehandler = require('./messagehandler');
         let MessageHandler = new messagehandler(logger, db, Cache)
         await MessageHandler.init();
+
+        let deletehandler = require('./deletehandler');
+        let DeleteHandler = new deletehandler(logger, db, Cache)
+        await DeleteHandler.init();
+
+        let geohandler = require('./geohandler');
+        let GeoHandler = new geohandler(logger, db, Cache)
+        await GeoHandler.init();
+
         var options =
         {
             id: 'filingcabinet',
@@ -95,7 +104,9 @@ module.exports = async function()
             port: 11300,
             handlers:
             {
-                message: MessageHandler
+                message: MessageHandler,
+                delete: DeleteHandler,
+                rmgeo: GeoHandler
             },
             ignoreDefault: true
         }
