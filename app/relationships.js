@@ -204,6 +204,7 @@ class RelationshipBuilder {
                 }
             }
         }
+        
         await this.database.update(message['@rid']).set({processed:true}).one();
     }
 

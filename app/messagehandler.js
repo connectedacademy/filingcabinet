@@ -1,4 +1,6 @@
 let rb = require('./relationships');
+let Redis = require('ioredis');
+let redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST);
 
 class Handler
 {
@@ -36,7 +38,6 @@ class Handler
             .then(async (result)=>{
                 this.logger.verbose("Message Written " + result['@rid']);
                 //build graph
-                await this.RelationshipBuilder.processMessage(result);
                 // send to cache:
                 try
                 {
@@ -47,6 +48,11 @@ class Handler
                 {
                     this.logger.error(e);
                 }
+                
+                await this.RelationshipBuilder.processMessage(result);
+                
+                redis.publish('messages', result.message_id);
+
                 callback('success');
             }).catch((err)=>{
                 callback('bury');

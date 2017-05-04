@@ -9,7 +9,7 @@ WORKDIR /usr/src/app
 
 COPY package.json /usr/src/app/package.json
 
-RUN npm install && npm cache clean
+RUN npm install --silent && npm cache clean
 
 COPY . /usr/src/app
 
