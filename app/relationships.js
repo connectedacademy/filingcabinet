@@ -9,7 +9,7 @@ class RelationshipBuilder {
         this.logger.verbose('Messaging Tokens Loaded');
     }
 
-    async linkToken(token, message, field) {
+    linkToken(token, message, field) {
         // try find the token
         let regex = new RegExp(token.regex.replace("\\\\", "\\"));
 
@@ -17,44 +17,14 @@ class RelationshipBuilder {
         if (results) {
             let result = results[1];
             // if the token is found, then find or create node for it
-
-            let tokenc = await this.database.update('token')
-                .set({
-                    type: token.name,
-                    name: result
-                })
-                .upsert()
-                .where(
-                {
-                    type: token.name,
-                    name: result
-                })
-                .return('AFTER')
-                .one();
-
-            // Token.findOrCreate(, { type: token.name, name: result }, async (err, record) => {
-            // create edge between the token and the message
-
-            if (tokenc) {
-                try {
-
-                    var res = await this.database.create('EDGE', 'tokenin').from(tokenc['@rid']).to(message['@rid']).set({
-                        createdAt: new Date()
-                    }).one();
-
-
-                    // let res = await Author.query("CREATE EDGE author FROM " + user.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
-                    this.logger.verbose("Created Token Relationship", tokenc.name, tokenc.type, message['@rid']+'', tokenc['@rid']+'');
-                    return true;
-                }
-                catch (e) {
-                    this.logger.error(e);
-                }
+            try {
+                message[token.name] = result.replace('/', '\/');
+                this.logger.verbose("Created Token Relationship", token.name, result);
+                return true;
             }
-            else {
-                this.logger.error('Token not found or created', token, result);
+            catch (e) {
+                this.logger.error(e);
             }
-
         }
         else {
             this.logger.silly('Regex not found in string', token.regex, field);
@@ -75,7 +45,7 @@ class RelationshipBuilder {
                         createdAt: new Date()
                     }).one();
                     // let res = await Author.query("CREATE EDGE author FROM " + user.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
-                    this.logger.verbose("Remessage (retweet) Linked", message['@rid']+'', msg['@rid']+'');
+                    this.logger.verbose("Remessage (retweet) Linked", message['@rid'] + '', msg['@rid'] + '');
                     return true;
                 }
                 catch (e) {
@@ -101,7 +71,7 @@ class RelationshipBuilder {
                     var res = await this.database.create('EDGE', 'reply').from(message['@rid']).to(msg['@rid']).set({
                         createdAt: new Date()
                     }).one();
-                    this.logger.verbose("Reply Linked ", message['@rid']+'', msg['@rid']+'');
+                    this.logger.verbose("Reply Linked ", message['@rid'] + '', msg['@rid'] + '');
                     return true;
                 }
                 catch (e) {
@@ -149,7 +119,7 @@ class RelationshipBuilder {
                     var res = await this.database.create('EDGE', 'author').from(user['@rid']).to(message['@rid']).set({
                         createdAt: new Date()
                     }).one();
-                    this.logger.verbose("Author Linked ", user['@rid']+'', message['@rid']+'');
+                    this.logger.verbose("Author Linked ", user['@rid'] + '', message['@rid'] + '');
                     return true;
                 }
                 catch (e) {
@@ -180,17 +150,17 @@ class RelationshipBuilder {
 
         //build relationship with rule:
         let processedtokens = [];
+        let newfields = {};
         for (let token of this.tokens) {
             // for the body of the message
-            if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, message.text))
+            if (!_.includes(processedtokens, JSON.stringify(token)) && this.linkToken(token, newfields, message.text))
                 processedtokens.push(JSON.stringify(token));
 
             if (message.entities) {
                 //Twitter URLs
                 if (message.entities.urls) {
                     for (let entity of message.entities.urls) {
-                        if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, entity.expanded_url))
-                        {
+                        if (!_.includes(processedtokens, JSON.stringify(token)) && this.linkToken(token, newfields, entity.expanded_url)) {
                             processedtokens.push(JSON.stringify(token));
                         }
                     }
@@ -198,14 +168,20 @@ class RelationshipBuilder {
 
                 if (message.entities.hashtags) {
                     for (let entity of message.entities.urls) {
-                        if (!_.includes(processedtokens,JSON.stringify(token)) && await this.linkToken(token, message, '#' + entity.text))
-                            processedtokens.push(JSON.stringify(token));                            
+                        if (!_.includes(processedtokens, JSON.stringify(token)) && this.linkToken(token, newfields, '#' + entity.text))
+                            processedtokens.push(JSON.stringify(token));
                     }
                 }
             }
         }
-        
-        await this.database.update(message['@rid']).set({processed:true}).one();
+
+        //save updated object
+        newfields.processed = true;
+        try {
+            await this.database.update(message['@rid']).set(newfields).one();
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     async init() {

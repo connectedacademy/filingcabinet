@@ -18,7 +18,7 @@
                 "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/.*\/.*\/(.*)$"
             },
             {
-                "name": "like",
+                "name": "tag",
                 "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/(.*\/\\D*)$"
             },
             {
