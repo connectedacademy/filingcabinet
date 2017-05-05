@@ -13,7 +13,7 @@ variables:
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY/$CI_REGISTRY_IMAGE:latest
 
 before_script:
-  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN"" $CI_REGISTRY
+  - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" $CI_REGISTRY
 
 build:
   stage: build
