@@ -4,7 +4,7 @@ services:
 
 stages:
 - build
-- test
+# - test
 - release
 - deploy
 
@@ -21,10 +21,10 @@ build:
     - docker build -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
 
-test:
-  stage: test
-  script:
-    - docker run $CONTAINER_TEST_IMAGE npm test
+# test:
+#   stage: test
+#   script:
+#     - docker run $CONTAINER_TEST_IMAGE npm test
 
 release-image:
   stage: release
@@ -41,7 +41,7 @@ deploy-aws:
   image: ruby:latest
   when: manual
   script:
-  - gem install dpl
-  - dpl --provider=elasticbeanstalk --access-key-id=<access-key-id> --secret-access-key="<secret-access-key>" --app="example-app-name" --env="example-app-environment" --region="us-west-2"
+    - gem install dpl
+    - dpl --provider=elasticbeanstalk --access-key-id=<access-key-id> --secret-access-key="<secret-access-key>" --app="example-app-name" --env="example-app-environment" --region="us-west-2"
   only:
-  - master
+    - master
