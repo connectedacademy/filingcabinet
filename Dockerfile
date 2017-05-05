@@ -1,7 +1,9 @@
 FROM node:7-alpine
+MAINTAINER Tom Bartindale <tom@bartindale.com>
 
 RUN apk --no-cache add git
-RUN npm install -g nodemon
+
+RUN npm install --silent -g nodemon
 
 RUN mkdir -p /usr/src/app
 
@@ -13,4 +15,6 @@ RUN npm install --silent && npm cache clean
 
 COPY . /usr/src/app
 
-CMD node app.js
+EXPOSE 1337
+
+CMD node --harmony-async-await app.js
