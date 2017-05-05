@@ -3,10 +3,9 @@ services:
 - docker:dind
 
 stages:
-  - build
-  - test
-  - release
-  - deploy
+- build
+- test
+- deploy
 
 variables:
   CONTAINER_TEST_IMAGE: $CI_REGISTRY/$CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
@@ -26,19 +25,19 @@ test:
   script:
     - docker run $CONTAINER_TEST_IMAGE npm test
 
-release-image:
-  stage: release
-  script:
-    - docker pull $CONTAINER_TEST_IMAGE
-    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-    - docker push $CONTAINER_RELEASE_IMAGE
-  only:
-    - master
+# release-image:
+#   stage: release
+#   script:
+#     - docker pull $CONTAINER_TEST_IMAGE
+#     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+#     - docker push $CONTAINER_RELEASE_IMAGE
+#   only:
+#     - master
 
 deploy-aws:
+  stage: deploy
   environment: amazonlive
   image: ruby:latest
-  stage: deploy
   when: manual
   script:
   - gem install dpl
