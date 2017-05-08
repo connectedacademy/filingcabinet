@@ -142,7 +142,7 @@ class ContentCache
                             if (cacheinfo)
                             {
                                 newsubmission.url = cacheinfo.url;
-                                newsubmission.content = cacheinfo.content;
+                                newsubmission.html = cacheinfo.content;
                                 newsubmission.matched = cacheinfo.matched;
                             }
                             newsubmission.cached = iscached;
