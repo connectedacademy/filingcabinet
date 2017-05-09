@@ -1,6 +1,7 @@
 let settings = require('./settings.json').cache;
 let _ = require('lodash');
 let request = require('request-promise-native');
+const URL = require('url');
 
 //S3 storage
 
@@ -43,31 +44,49 @@ class ContentCache
         let content = await request(url);
         // console.log(content);
         // parse for the capture object
-        let regex = new RegExp(settings.capture.replace("\\\\","\\"));
-        // console.log(regex);
-
-        let results = regex.exec(content);
-        if (results)
+        let capturedcontent = [];
+        for (let cap of settings.capture)
         {
-            //cache the capture object and all references (i.e. img, json, sidecar)
+            let regex = new RegExp(cap.replace("\\\\","\\"));
+            let captured_content = regex.exec(content);
+            if (captured_content)
+                capturedcontent.push(captured_content[1]);
+            // console.log(captured);
+        }
 
+        if (capturedcontent.length>0)
+        {
+            // console.log(capturedcontent);
+            //cache the capture object and all references (i.e. src, data-4c links: img, json, sidecar)
+
+            let regex = new RegExp(settings.preview.replace("\\\\","\\"));
+            // console.log(regex);
+            let preview_results = regex.exec(content);
+            //get resources:
+
+            
             //put this in S3 as a document
 
             // return the s3 url of this document:
 
+            // PREVIEW LINK
+            let preview =  preview_results[1];
+            if (!preview.startsWith('http'))
+            {
+                let parsed = URL.parse(url);
+                preview = URL.resolve(parsed.protocol + '//' + parsed.host + parsed.pathname,preview);
+            }
+
             return {
-                url: 'dummy.html',
+                url: 's3_cache.html',
                 matched: true,
-                content: results[1]
+                content: capturedcontent.join(''),
+                preview: preview
             };
         }
         else
         {
-            return {
-                url: 'dummy.html',                
-                match: false,
-                content: content
-            };
+            throw new Error("No captures in content");
         }
     }
 
@@ -100,6 +119,7 @@ class ContentCache
                 {
                     if (url.expanded_url != found) //if its not the identification url
                     {
+                        // console.log(message.user_from.id_str);
                         // find the user account it relates to:
                         let user = await this.database.select()
                             .from('user')
@@ -108,7 +128,7 @@ class ContentCache
                                 service: message.service
                             }).one();
                         // if its a known user, then cache it
-                        if (true || user)
+                        if (user)
                         {
                             //get db field details:
                             let newsubmission = {};
@@ -144,6 +164,7 @@ class ContentCache
                                 newsubmission.url = cacheinfo.url;
                                 newsubmission.html = cacheinfo.content;
                                 newsubmission.matched = cacheinfo.matched;
+                                newsubmission.thumbnail = cacheinfo.preview;
                             }
                             newsubmission.cached = iscached;
                             newsubmission.original = url.expanded_url;

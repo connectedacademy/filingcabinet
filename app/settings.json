@@ -43,6 +43,11 @@
                 "regex": "https:\/\/.*\\.connectedacademy\\.io\/submission\/.*\/(.*)"
             }
         ],
-        "capture": "(<script.*data-4c-meta[\\S\\s]*<\/script>)[\\S\\s]*(<img.*data-4c.*>)"
+        "capture": [
+            "(<script.*data-4c-meta[\\S\\s]*?<\/script>)",
+            "(<img.*data-4c.*>)",
+            "(<script.*src.*fourcorners\\/dist.*?<\\/script>)"
+        ],
+        "preview": "<img.*src\\=[\"'](.*)[\"'] .*\\/>"
     }
 }
