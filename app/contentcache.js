@@ -101,9 +101,11 @@ class ContentCache
             // return the s3 url of this document:
 
             //change the links in the doc:
-            
             capturedcontent = _.map(capturedcontent,(c)=>{
                 return c.replace(/(src=")(.*?)"/,function(all,src,token){
+
+                    
+
                     if (!token.startsWith('http'))
                     {
                         let parsed = URL.parse(url);
