@@ -2,8 +2,10 @@ let settings = require('./settings.json').cache;
 let _ = require('lodash');
 let request = require('request-promise-native');
 const URL = require('url');
-
-//S3 storage
+const AWS = require('aws-sdk');
+const fs = require('fs');
+const uuid = require('uuid');
+AWS.config.update({ accessKeyId: process.env.AWS_S3_KEY, secretAccessKey: process.env.AWS_S3_SECRET });
 
 class ContentCache
 {
@@ -37,6 +39,36 @@ class ContentCache
         }
     }
 
+    async putFileToS3(data)
+    {
+
+        // Read in the file, convert it to base64, store to S3
+        // let data = fs.readFile('del.txt', function (err, data) {
+            // if (err) { throw err; }
+        return new Promise((resolve,reject)=>{
+            var base64data = new Buffer(data, 'binary');
+            var s3 = new AWS.S3();
+            let filename = uuid();
+            s3.client.putObject({
+                Bucket: process.env.AWS_S3_BUCKET,
+                Key: "submission/" + filename,
+                Body: base64data,
+                ACL: 'public-read'
+            },function (err,resp) {
+                if (err)
+                {
+                    this.logger.error(err);
+                    reject(err);
+                }
+                else
+                {
+                    this.logger.verbose('Successfully uploaded', filename);
+                    resolve();
+                }
+            });
+        });
+    }
+
     async putToS3(url)
     {
         this.logger.verbose('Getting url',url);        
@@ -64,10 +96,21 @@ class ContentCache
             let preview_results = regex.exec(content);
             //get resources:
 
-            
             //put this in S3 as a document
 
             // return the s3 url of this document:
+
+            //change the links in the doc:
+            
+            capturedcontent = _.map(capturedcontent,(c)=>{
+                return c.replace(/(src=")(.*?)"/,function(all,src,token){
+                    if (!token.startsWith('http'))
+                    {
+                        let parsed = URL.parse(url);
+                        return 'src="'+URL.resolve(parsed.protocol + '//' + parsed.host + parsed.pathname, token)+'"';
+                    }
+                });
+            });
 
             // PREVIEW LINK
             let preview =  preview_results[1];
