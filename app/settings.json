@@ -7,19 +7,19 @@
             },
             {
                 "name": "class",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/(.*)\/.*\/.*$"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/course\/(.*)\/.*\/.*$"
             },
             {
                 "name": "content",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/.*\/(.*)\/.*$"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/course\/.*\/(.*)\/.*$"
             },
             {
                 "name": "segment",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/.*\/.*\/(.*)$"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/course\/.*\/.*\/(.*)$"
             },
             {
                 "name": "tag",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/course\/(.*\/\\D*)$"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/course\/(.*\/\\D*)$"
             },
             {
                 "name": "hub",
@@ -28,7 +28,7 @@
         ]
     },
     "cache": {
-        "validate": "https:\/\/.*\\.connectedacademy\\.io\/submission\/(.*\/\\D*)$",
+        "validate": "https:\/\/.*\\.connectedacademy\\.io\/#\/submission\/(.*\/\\D*)$",
         "tokens": [
             {
                 "name": "course",
@@ -36,11 +36,11 @@
             },
             {
                 "name": "class",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/submission\/(.*)\/.*"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/submission\/(.*)\/.*"
             },
              {
                 "name": "content",
-                "regex": "https:\/\/.*\\.connectedacademy\\.io\/submission\/.*\/(.*)"
+                "regex": "https:\/\/.*\\.connectedacademy\\.io\/#\/submission\/.*\/(.*)"
             }
         ],
         "capture": [
