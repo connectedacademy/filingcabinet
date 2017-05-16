@@ -15,6 +15,4 @@ RUN npm install --silent && npm cache clean
 
 COPY . /usr/src/app
 
-EXPOSE 1337
-
 CMD node --harmony-async-await app.js
