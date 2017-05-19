@@ -4,9 +4,11 @@ let loggly = require('winston-loggly-bulk');
 // let Redis = require("ioredis");
 let Message = null;
 let ContentCache = require('./contentcache.js');
-var Beanworker = require('fivebeans').worker;
+let Beanworker = require('fivebeans').worker;
+let _ = require('lodash');
 
-let createField = async function(cls, name, type)
+
+let createField = async function(cls, name, type, linkedClass)
 {
     try
     {
@@ -14,9 +16,50 @@ let createField = async function(cls, name, type)
             {
                 name: name,
                 type: type,
+                linkedClass: linkedClass
             }
         ]);
         logger.info("Adding " + name + " to Message");
+    }
+    catch (e)
+    {
+        // console.log(e);
+        //properties already exist
+    }
+}
+
+let createIndex = async function(db,cls, name)
+{
+    try
+    {
+        await db.index.create(
+            {
+                name: `${cls}.${name}`,
+                type: 'NOTUNIQUE_HASH_INDEX'
+            }
+        );
+        logger.info("Adding Index " + `${cls}.${name}` + " to Message");
+    }
+    catch (e)
+    {
+        // console.log(e);
+        //properties already exist
+    }
+}
+
+let createCompIndex = async function(db, cls, names)
+{
+    try
+    {
+        await db.index.create(
+            {
+                name:'composite_index_'+cls,
+                'class': cls,
+                properties:names,
+                type: 'NOTUNIQUE_HASH_INDEX'
+            }
+        );
+        logger.info("Adding Composite Index " + 'composite_index_'+cls + " to Message");
     }
     catch (e)
     {
@@ -80,6 +123,22 @@ module.exports = async function()
         {
             logger.verbose('Cant get class',e);
         }
+
+        //update fields and indexes:
+        let fields = require('./settings.json');
+        for (let field of fields.relationships.tokens)
+        {
+            await createField(Message,field.name,'STRING');
+            await createIndex(db, 'message', field.name);
+        }
+        await createField(Message,'createdAt','DATETIME');
+        await createField(Message,'updatedAt','DATETIME');
+        await createField(Message,'user','LINK','user');
+
+        let comp_index = _.map(_.filter(fields.relationships.tokens,{compositeindex:true}),'name');
+        // console.log(comp_index);
+        await createCompIndex(db,'message',comp_index);
+        
         
         logger.info("Cache Engine Started");
         let Cache = await new ContentCache(db, logger);
