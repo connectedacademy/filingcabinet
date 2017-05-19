@@ -116,9 +116,14 @@ class RelationshipBuilder {
             //if there is an author record, then link
             if (user) {
                 try {
-                    var res = await this.database.create('EDGE', 'author').from(user['@rid']).to(message['@rid']).set({
-                        createdAt: new Date()
-                    }).one();
+                    // var res = await this.database.create('EDGE', 'author').from(user['@rid']).to(message['@rid']).set({
+                    //     createdAt: new Date()
+                    // }).one();
+                    await this.database.update(message['@rid'])
+                        .set({
+                            user: user['@rid']
+                        }).one();
+
                     this.logger.verbose("Author Linked ", user['@rid'] + '', message['@rid'] + '');
                     return true;
                 }

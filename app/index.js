@@ -1,7 +1,6 @@
 let winston = require('winston');
 let logger = new winston.Logger();
 let loggly = require('winston-loggly-bulk');
-// let Redis = require("ioredis");
 let Message = null;
 let ContentCache = require('./contentcache.js');
 let Beanworker = require('fivebeans').worker;

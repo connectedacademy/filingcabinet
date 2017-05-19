@@ -225,7 +225,7 @@ class ContentCache
                         }
                         else
                         {
-                            this.logger.error("No user found", message.user);                    
+                            this.logger.error("Not a known user, wont cache content", message.user);                    
                         }
                     }
                 }
