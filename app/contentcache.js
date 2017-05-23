@@ -1,11 +1,13 @@
 let settings = require('./settings.json').cache;
 let _ = require('lodash');
 let request = require('request-promise-native');
+let request_orig = require('request');
 const URL = require('url');
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const uuid = require('uuid');
-AWS.config.update({ accessKeyId: process.env.AWS_S3_KEY, secretAccessKey: process.env.AWS_S3_SECRET });
+var s3 = new AWS.S3();
+const path = require('path');
 
 class ContentCache
 {
@@ -39,39 +41,40 @@ class ContentCache
         }
     }
 
-    async putFileToS3(data)
+    async putFileToS3(folder, name, url, content)
     {
 
-        // Read in the file, convert it to base64, store to S3
-        // let data = fs.readFile('del.txt', function (err, data) {
-            // if (err) { throw err; }
-        return new Promise((resolve,reject)=>{
-            var base64data = new Buffer(data, 'binary');
-            var s3 = new AWS.S3();
-            let filename = uuid();
-            s3.client.putObject({
-                Bucket: process.env.AWS_S3_BUCKET,
-                Key: "submission/" + filename,
-                Body: base64data,
-                ACL: 'public-read'
-            },function (err,resp) {
-                if (err)
-                {
-                    this.logger.error(err);
-                    reject(err);
-                }
-                else
-                {
-                    this.logger.verbose('Successfully uploaded', filename);
-                    resolve();
-                }
+        return new Promise(async (resolve,reject)=>{
+            
+
+            let filename = 'submission/' + folder + '/' + name + '/' + path.basename(url);
+
+            // var stream = request_orig.get(url)
+                // .on('response', function (response) {
+                // if (200 == response.statusCode) {
+                    
+                    if (!content)
+                        content = await request(url);
+                    
+                    s3.upload({
+                        Body: content,
+                        Bucket: process.env.AWS_S3_BUCKET,
+                        Key: filename
+                    }, function (err, data) {  //2 months
+                        // console.log(err,data);
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(filename);
+                    });
+                // }
+                // });
             });
-        });
     }
 
-    async putToS3(url)
+    async putToS3(url,id)
     {
-        this.logger.verbose('Getting url',url);        
+        this.logger.verbose('Getting url',url);       
         // get the target content
         let content = await request(url);
         // console.log(content);
@@ -83,32 +86,24 @@ class ContentCache
             let captured_content = regex.exec(content);
             if (captured_content)
                 capturedcontent.push(captured_content[1]);
-            // console.log(captured);
         }
 
         if (capturedcontent.length>0)
         {
             // console.log(capturedcontent);
             //cache the capture object and all references (i.e. src, data-4c links: img, json, sidecar)
-
             let regex = new RegExp(settings.preview.replace("\\\\","\\"));
             // console.log(regex);
             let preview_results = regex.exec(content);
+
             //get resources:
-
-            //put this in S3 as a document
-
-            // return the s3 url of this document:
-
             //change the links in the doc:
+            let parsed = URL.parse(url);
+
             capturedcontent = _.map(capturedcontent,(c)=>{
                 return c.replace(/(src=")(.*?)"/,function(all,src,token){
-
-                    
-
                     if (!token.startsWith('http'))
                     {
-                        let parsed = URL.parse(url);
                         return 'src="'+URL.resolve(parsed.protocol + '//' + parsed.host + parsed.pathname, token)+'"';
                     }
                 });
@@ -118,15 +113,23 @@ class ContentCache
             let preview =  preview_results[1];
             if (!preview.startsWith('http'))
             {
-                let parsed = URL.parse(url);
                 preview = URL.resolve(parsed.protocol + '//' + parsed.host + parsed.pathname,preview);
             }
+            
+            let folder_name = id;
+            let promises = [];
+
+            promises.push(this.putFileToS3(folder_name,'content',preview));
+            promises.push(this.putFileToS3(folder_name,'content',url,content));
+
+            await Promise.all(promises);
 
             return {
                 url: 's3_cache.html',
                 matched: true,
                 content: capturedcontent.join(''),
-                preview: preview
+                preview: preview,
+                cache_folder: folder_name
             };
         }
         else
@@ -188,13 +191,12 @@ class ContentCache
                                 }
                             }
 
-
                             let iscached = false;
                             let cacheinfo = null;
                             try
                             {
                                 // cache this url as a submission:
-                                cacheinfo = await this.putToS3(url.expanded_url);
+                                cacheinfo = await this.putToS3(url.expanded_url, message['@rid']);
                                 iscached = true;
                             }
                             catch (e)
@@ -210,6 +212,7 @@ class ContentCache
                                 newsubmission.html = cacheinfo.content;
                                 newsubmission.matched = cacheinfo.matched;
                                 newsubmission.thumbnail = cacheinfo.preview;
+                                newsubmission.cache_folder = cacheinfo.cache_folder;
                             }
                             newsubmission.cached = iscached;
                             newsubmission.original = url.expanded_url;

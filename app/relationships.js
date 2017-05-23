@@ -144,14 +144,18 @@ class RelationshipBuilder {
         //for each rule in settings
         this.logger.verbose("Process Message", message['@rid'] + '');
 
+        let promises = [];
+
         //link author:
-        await this.buildAuthorLink(message);
+        promises.push(this.buildAuthorLink(message));
 
         //link retweet
-        await this.buildReMessageLink(message);
+        promises.push(this.buildReMessageLink(message));
 
         //link reply
-        await this.buildReplyLink(message);
+        promises.push(this.buildReplyLink(message));
+
+        await Promise.all(promises);
 
         //build relationship with rule:
         let processedtokens = [];

@@ -39,6 +39,10 @@ class Handler
                 this.logger.verbose("Message Written " + result['@rid']);
                 //build graph
                 // send to cache:
+                
+                
+                await this.RelationshipBuilder.processMessage(result);
+
                 try
                 {
                     this.logger.verbose('Processing Message for Cache',msg.message_id);
@@ -48,8 +52,6 @@ class Handler
                 {
                     this.logger.error(e);
                 }
-                
-                await this.RelationshipBuilder.processMessage(result);
                 
                 redis.publish('messages', result.message_id);
 
