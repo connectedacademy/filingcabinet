@@ -25,7 +25,7 @@ class Handler
             let msg = payload;
             this.logger.verbose('Writing Message from PUBSUB', msg.message_id);
             msg.createdAt = Date.parse(msg.createdAt);
-            msg.updatedAt = Date.parse(msg.updatedAt);
+            msg.updatedAt = new Date();
             // console.log(msg);
             this.db.update('message')
             .set(msg)
@@ -37,23 +37,29 @@ class Handler
             .one()
             .then(async (result)=>{
                 this.logger.verbose("Message Written " + result['@rid']);
-                //build graph
-                // send to cache:
                 
-                
-                await this.RelationshipBuilder.processMessage(result);
+                if (!result.processed)
+                {
+                    //build graph
+                    await this.RelationshipBuilder.processMessage(result);
 
-                try
-                {
-                    this.logger.verbose('Processing Message for Cache',msg.message_id);
-                    this.Cache.HandleMessage(result);
+                    try
+                    {
+                        // send to cache:
+                        this.logger.verbose('Processing Message for Cache',msg.message_id);
+                        this.Cache.HandleMessage(result);
+                    }
+                    catch (e)
+                    {
+                        this.logger.error(e);
+                    }
+                    
+                    redis.publish('messages', result.message_id);
                 }
-                catch (e)
+                else
                 {
-                    this.logger.error(e);
+                    this.logger.verbose('Message already processed',msg.message_id);
                 }
-                
-                redis.publish('messages', result.message_id);
 
                 callback('success');
             }).catch((err)=>{

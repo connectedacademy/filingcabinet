@@ -128,8 +128,7 @@ class ContentCache
                 url: 's3_cache.html',
                 matched: true,
                 content: capturedcontent.join(''),
-                preview: preview,
-                cache_folder: folder_name
+                preview: preview
             };
         }
         else
@@ -212,14 +211,15 @@ class ContentCache
                                 newsubmission.html = cacheinfo.content;
                                 newsubmission.matched = cacheinfo.matched;
                                 newsubmission.thumbnail = cacheinfo.preview;
-                                newsubmission.cache_folder = cacheinfo.cache_folder;
                             }
                             newsubmission.cached = iscached;
                             newsubmission.original = url.expanded_url;
                             newsubmission.cachedat = new Date();
+                            newsubmission.createdAt = new Date();
                             try
                             {
                                 await this.Submission.create(newsubmission);
+                                this.logger.info('Submission created',newsubmission['@rid']+'');                                
                             }
                             catch(E)
                             {

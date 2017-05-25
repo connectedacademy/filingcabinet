@@ -34,6 +34,7 @@ class RelationshipBuilder {
     async buildReMessageLink(message) {
         if (message.remessageto) {
             //find author record:
+
             let msg = await this.database.select().from('user').where({
                 message_id: message.remessageto.id_str,
                 service: message.service
@@ -41,10 +42,14 @@ class RelationshipBuilder {
             //if there is an author record, then link
             if (msg) {
                 try {
-                    var res = await this.database.create('EDGE', 'remessage').from(message['@rid']).to(msg['@rid']).set({
-                        createdAt: new Date()
-                    }).one();
+                    // var res = await this.database.create('EDGE', 'remessage').from(message['@rid']).to(msg['@rid']).set({
+                    //     createdAt: new Date()
+                    // }).one();
                     // let res = await Author.query("CREATE EDGE author FROM " + user.id + " TO " + message.id + " SET createdAt = date(\"" + new Date().toISOString() + "\", \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", \"UTC\")");
+                    await this.database.update(message['@rid'])
+                    .set({
+                        remessage: msg['@rid']
+                    }).one();
                     this.logger.verbose("Remessage (retweet) Linked", message['@rid'] + '', msg['@rid'] + '');
                     return true;
                 }
@@ -60,17 +65,28 @@ class RelationshipBuilder {
 
     async buildReplyLink(message) {
         //find author record:
+
         if (message.replyto) {
-            let msg = await this.database.select().from('message').where({
-                message_id: message.replyto,
-                service: message.service
-            }).one();
+            message.replyto.createdAt = Date.parse(message.replyto.createdAt);
+            message.replyto.updatedAt = new Date();
+            // console.log(msg);
+            let msg = await this.database.update('message')
+                .set(message.replyto)
+                .upsert()
+                .where({
+                    message_id: message.replyto.message_id
+                })
+                .return('AFTER')
+                .one();
+
             //if there is an message record, then link
             if (msg) {
                 try {
                     var res = await this.database.create('EDGE', 'reply').from(message['@rid']).to(msg['@rid']).set({
                         createdAt: new Date()
                     }).one();
+                    
+
                     this.logger.verbose("Reply Linked ", message['@rid'] + '', msg['@rid'] + '');
                     return true;
                 }
@@ -79,10 +95,9 @@ class RelationshipBuilder {
                 }
             }
             else {
-                this.logger.verbose('No message record for building reply to' + message.replyto);
+                this.logger.verbose('No message record for building reply to ' + message.replyto);
             }
         }
-        // });
     }
 
     async buildAuthorLink(message) {

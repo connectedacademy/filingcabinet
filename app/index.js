@@ -133,6 +133,7 @@ module.exports = async function()
         await createField(Message,'createdAt','DATETIME');
         await createField(Message,'updatedAt','DATETIME');
         await createField(Message,'user','LINK','user');
+        await createField(Message,'remessage','LINK','message');
 
         let comp_index = _.map(_.filter(fields.relationships.tokens,{compositeindex:true}),'name');
         // console.log(comp_index);
