@@ -200,7 +200,7 @@ class ContentCache
                             }
                             catch (e)
                             {
-                                this.logger.verbose("No captured content");
+                                this.logger.verbose("No captured content",e);
                             }
 
                             //still save it as a submissions:
