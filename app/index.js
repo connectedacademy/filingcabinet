@@ -1,10 +1,10 @@
 let winston = require('winston');
 let logger = new winston.Logger();
-let loggly = require('winston-loggly-bulk');
 let Message = null;
 let ContentCache = require('./contentcache.js');
 let Beanworker = require('fivebeans').worker;
 let _ = require('lodash');
+let os = require('os');
 
 
 let createField = async function(cls, name, type, linkedClass)
@@ -78,15 +78,20 @@ module.exports = async function()
             humanReadableUnhandledException: true
         });
 
-        logger.add(winston.transports.Loggly, {
-            subdomain: process.env.LOGGLY_API_DOMAIN,
-            token:process.env.LOGGLY_API_KEY,
-            tags:['filingcabinet'],
-            level:'error',
-            json: true,
-            handleExceptions: true,
-            humanReadableUnhandledException: true
-        });
+        //REMOTE LOGGING
+        if (!process.env.CI && process.env.NODE_ENV=='production')
+        {
+            let winstonAwsCloudWatch = require('winston-cloudwatch');
+            logger.on('error',(err)=>{
+                console.log(err);
+            });
+            logger.add(winstonAwsCloudWatch, {
+                logGroupName: 'ConnectedAcademyAPI',
+                logStreamName:'filingcabinet-'+ os.hostname(),
+                awsRegion: process.env.AWS_DEFAULT_REGION,
+                jsonMessage: true
+            });
+        }
 
         logger.info('Filing Cabinet Started');
 
