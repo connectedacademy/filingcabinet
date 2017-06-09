@@ -218,8 +218,9 @@ class ContentCache
                             newsubmission.createdAt = new Date();
                             try
                             {
-                                await this.Submission.create(newsubmission);
+                                let submission = await this.Submission.create(newsubmission);
                                 this.logger.info('Submission created',newsubmission['@rid']+'');                                
+                                return submission;
                             }
                             catch(E)
                             {

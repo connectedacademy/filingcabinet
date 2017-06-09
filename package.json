@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-
+    "debug": "node --harmony-async-await debug app.js"
   },
   "repository": {
     "type": "git",
