@@ -106,6 +106,10 @@ class ContentCache
                     {
                         return 'src="'+URL.resolve(parsed.protocol + '//' + parsed.host + parsed.pathname, token)+'"';
                     }
+                    else
+                    {
+                        return 'src="' + token + '"';
+                    }
                 });
             });
 

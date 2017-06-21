@@ -44,9 +44,9 @@
             }
         ],
         "capture": [
+            "(<script.*src.*fourcorners\\/dist.*?<\\/script>)",
             "(<script.*data-4c-meta[\\S\\s]*?<\/script>)",
-            "(<img.*data-4c.*>)",
-            "(<script.*src.*fourcorners\\/dist.*?<\\/script>)"
+            "(<img.*data-4c.*>)"
         ],
         "preview": "<img.*src\\=[\"'](.*?)[\"'] .*\\/>"
     }
