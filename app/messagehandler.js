@@ -48,7 +48,8 @@ class Handler
                         // send to cache:
                         this.logger.verbose('Processing Message for Cache',msg.message_id);
                         let submission = await this.Cache.HandleMessage(result);
-                        redis.publish('submissions', submission['@rid']);
+                        if (submission)
+                            redis.publish('submissions', submission['@rid']);
                     }
                     catch (e)
                     {

@@ -48,6 +48,6 @@
             "(<img.*data-4c.*>)",
             "(<script.*src.*fourcorners\\/dist.*?<\\/script>)"
         ],
-        "preview": "<img.*src\\=[\"'](.*)[\"'] .*\\/>"
+        "preview": "<img.*src\\=[\"'](.*?)[\"'] .*\\/>"
     }
 }
