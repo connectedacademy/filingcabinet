@@ -45,8 +45,8 @@
         ],
         "capture": [
             "(<script.*src.*\/dist\/4c\\.js.*?<\/script>)",
-            "(<script.*data-4c-meta[\\S\\s]*?<\/script>)",
-            "(<img.*data-4c.*>)"
+            "(<script.*?data-4c-meta[\\S\\s]*?<\/script>)",
+            "(<img.*?data-4c.*?>)"
         ],
         "preview": "<img.*src\\=[\"'](.*?)[\"'] .*\\/>"
     }

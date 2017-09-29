@@ -6,6 +6,7 @@ networks:
 services:
   filingcabinet:
     build: .
+    image: connectedacademy/filingcabinet
     volumes:
       - ./app:/usr/src/app/app
       - ./test:/usr/src/app/test:ro
