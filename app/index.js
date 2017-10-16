@@ -81,16 +81,26 @@ module.exports = async function()
         //REMOTE LOGGING
         if (!process.env.CI && process.env.NODE_ENV=='production')
         {
-            let winstonAwsCloudWatch = require('winston-cloudwatch');
-            logger.on('error',(err)=>{
-                console.log(err);
-            });
-            logger.add(winstonAwsCloudWatch, {
-                logGroupName: 'ConnectedAcademyAPI',
-                logStreamName:'filingcabinet',
-                awsRegion: process.env.AWS_DEFAULT_REGION,
-                jsonMessage: true
-            });
+          let logzioWinstonTransport = require('winston-logzio');
+          let loggerOptions = {
+              token: process.env.LOGZ_TOKEN,
+              host: 'listener.logz.io',
+              type: 'filingcabinet',
+              level: 'verbose'
+          };
+          customLogger.on('error',(err)=>{
+            console.error(err);
+          });
+          customLogger.add(logzioWinstonTransport,loggerOptions);
+            
+          // let winstonAwsCloudWatch = require('winston-cloudwatch');
+          // customLogger.add(winstonAwsCloudWatch, {
+          //   logGroupName: 'ConnectedAcademyAPI',
+          //   logStreamName:'watercooler',
+          //   awsRegion: process.env.AWS_DEFAULT_REGION,
+          //   jsonMessage: true,
+          //   level:'verbose'
+          // });
         }
 
         logger.info('Filing Cabinet Started');
