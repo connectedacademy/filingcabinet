@@ -1,14 +1,10 @@
 # Social Media Processing Service (filingcabinet)
 
-NodeJS script which monitors beanstalk and writes incoming messages from the queue to the OrientDB.
+Applicationwhich monitors beanstalk and writes incoming messages from the queue to the OrientDB.
 
-Designed to be a single instance in a cluster which bridge the gap between multiple incoming message sources (filingcabinet-*) and OrientDB.
+Designed to be a single instance in a cluster which bridge the gap between multiple incoming message sources (`filingcabinet-*`) and `OrientDB|Redis`.
 
 > This application is horizontally scalable
-
-## Deployment
-
-`docker-compose up -d`
 
 ## Operation
 
