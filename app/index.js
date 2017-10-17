@@ -88,10 +88,10 @@ module.exports = async function()
               type: 'filingcabinet',
               level: 'verbose'
           };
-          customLogger.on('error',(err)=>{
+          logger.on('error',(err)=>{
             console.error(err);
           });
-          customLogger.add(logzioWinstonTransport,loggerOptions);
+          logger.add(logzioWinstonTransport,loggerOptions);
             
           // let winstonAwsCloudWatch = require('winston-cloudwatch');
           // customLogger.add(winstonAwsCloudWatch, {
