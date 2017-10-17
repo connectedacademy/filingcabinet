@@ -1,6 +1,8 @@
 # Social Media Processing Service (filingcabinet)
 
-Applicationwhich monitors beanstalk and writes incoming messages from the queue to the OrientDB.
+[![Docker Pulls](https://img.shields.io/docker/pulls/connectedacademy/filingcabinet.svg)](https://hub.docker.com/r/connectedacademy/filingcabinet/)
+
+Application which monitors beanstalk and writes incoming messages from the queue to the OrientDB.
 
 Designed to be a single instance in a cluster which bridge the gap between multiple incoming message sources (`filingcabinet-*`) and `OrientDB|Redis`.
 
